@@ -11,7 +11,7 @@ variables:
 
 resources:
  pipelines:
-     - pipeline: 'buildPipeline'
+     - pipeline: 'Build Pipeline'
        project: 'AzureTestProject'
        source: 'main'
     
