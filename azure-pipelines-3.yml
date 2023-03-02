@@ -25,7 +25,7 @@ stages:
     jobs:
     - deployment: DeployWebsite
       displayName: 'Deploy website'
-      environment: 'Windows 11 server'
+      environment: 'Windows 11 server.Machine3'
       strategy:
        runOnce:
         deploy:
