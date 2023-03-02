@@ -42,13 +42,13 @@ stages:
                   inputs:
                     IISDeploymentType: 'IISWebsite'
                     ActionIISWebsite: 'StopWebsite'
-                    StartStopWebsiteName: '${{ variables.IISWebsiteName }}'
+                    StartStopWebsiteName: 'AzureTestProject'
                     
                 - task: IISWebAppDeploymentOnMachineGroup@0
                   name: 'DeployIIS'
                   displayName: 'Deploy IIS Website'
                   inputs:
-                    WebSiteName: '${{ variables.IISWebsiteName }}'
+                    WebSiteName: 'AzureTestProject'
                     Package: '$(Pipeline.Workspace)\buildPipeline\AzureTestProject\RoundTheCode.AzureTestProject'
                     TakeAppOfflineFlag: true
 
@@ -58,4 +58,4 @@ stages:
                   inputs:
                     IISDeploymentType: 'IISWebsite'
                     ActionIISWebsite: 'StartWebsite'
-                    StartStopWebsiteName: '${{ variables.IISWebsiteName }}'
+                    StartStopWebsiteName: 'AzureTestProject'
