@@ -42,7 +42,7 @@ stages:
                   inputs:
                     IISDeploymentType: 'IISWebsite'
                     ActionIISWebsite: 'StopWebsite'
-                    StartStopWebsiteName: 'AzureTestProject'
+                    StartStopWebsiteName: '2'
                     
                 - task: IISWebAppDeploymentOnMachineGroup@0
                   name: 'DeployIIS'
