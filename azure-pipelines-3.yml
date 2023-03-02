@@ -11,9 +11,10 @@ variables:
 
 resources:
  pipelines:
-     - pipeline: 'Build Pipeline'
+     - pipeline: 'buildPipeline'
        project: 'AzureTestProject'
-       source: 'main'
+       source: 'Build Pipeline'
+       branch: 'main'
     
 stages:
   - stage: DeployWebsite
