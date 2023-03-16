@@ -4,7 +4,9 @@
 # https://aka.ms/yaml
 
 trigger:
-- none
+  branches:
+    include:
+      - main
 
 pool:
   vmImage: 'windows-latest'
@@ -15,41 +17,81 @@ variables:
   solution: '**/RoundTheCode.AzureTestProject.sln'
   project: '**/RoundTheCode.AzureTestProject.csproj'
 
-steps:
-- task: NuGetToolInstaller@1
-  name: 'NuGetToolInstaller'
-  displayName: 'NuGet tool installer'
+stages:
+  - stage: Build
+    jobs:
+      - job: BuildJob
+        steps:
+          - task: NuGetToolInstaller@1
+            name: 'NuGetToolInstaller'
+            displayName: 'NuGet tool installer'
 
-- task: NuGetCommand@2
-  name: 'NuGetRestore'
-  displayName: 'NuGet restore packages'
-  inputs:
-    command: 'restore'
-    restoreSolution: '$(solution)'
-    feedsToUse: 'select'
+          - task: NuGetCommand@2
+            name: 'NuGetRestore'
+            displayName: 'NuGet restore packages'
+            inputs:
+              command: 'restore'
+              restoreSolution: '$(solution)'
+              feedsToUse: 'select'
 
-- task: DotNetCoreCLI@2
-  name: 'Tests'
-  displayName: 'Run Tests'
-  inputs:
-    command: 'test'
-    projects: '$(solution)'
-    arguments: '--configuration $(BuildConfiguration)'
+          - task: DotNetCoreCLI@2
+            name: 'Tests'
+            displayName: 'Run Tests'
+            inputs:
+              command: 'test'
+              projects: '$(solution)'
+              arguments: '--configuration $(BuildConfiguration)'
 
 
-- task: DotNetCoreCLI@2
-  name: 'Publish'
-  displayName: 'Publish'
-  inputs:
-    command: 'publish'
-    publishWebProjects: false
-    projects: '$(project)'
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: false
-- task: PublishBuildArtifacts@1
-  name: 'PublishBuildArtifacts'
-  displayName: 'Publish Build Artifacts'
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'AzureTestProject'
-    publishLocation: 'Container'
+          - task: DotNetCoreCLI@2
+            name: 'Publish'
+            displayName: 'Publish'
+            inputs:
+              command: 'publish'
+              publishWebProjects: false
+              projects: '$(project)'
+              arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+              zipAfterPublish: false
+          - task: PublishBuildArtifacts@1
+            name: 'PublishBuildArtifacts'
+            displayName: 'Publish Build Artifacts'
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'AzureTestProject-$(Build.SourceBranchName)'
+              publishLocation: 'Container'
+  - stage: Dev
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    displayName: 'Dev Deploy'
+    pool:
+      vmImage: windows-latest
+    jobs:
+    - deployment: DevDeployment
+      environment: 'Windows 11 server.Machine3'
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+               
+                - task: IISWebAppManagementOnMachineGroup@0
+                  name: 'StopIIS'
+                  displayName: 'Stop IIS Website'
+                  inputs:
+                    IISDeploymentType: 'IISWebsite'
+                    ActionIISWebsite: 'StopWebsite'
+                    StartStopWebsiteName: 'AzureTestProject'
+
+                - task: IISWebAppDeploymentOnMachineGroup@0
+                  name: 'DeployIIS'
+                  displayName: 'Deploy IIS Website'
+                  inputs:
+                    WebSiteName: 'AzureTestProject'
+                    Package: '$(System.DefaultWorkingDirectory)/AzureTestProject-$(Build.SourceBranchName).zip'
+                    TakeAppOfflineFlag: true
+
+                - task: IISWebAppManagementOnMachineGroup@0
+                  name: 'StartIIS'
+                  displayName: 'Start IIS Website'
+                  inputs:
+                    IISDeploymentType: 'IISWebsite'
+                    ActionIISWebsite: 'StartWebsite'
+                    StartStopWebsiteName: 'AzureTestProject'
