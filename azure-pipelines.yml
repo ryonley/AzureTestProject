@@ -30,7 +30,7 @@ stages:
             displayName: 'build artifact staging directory output'
             inputs:
               script: |
-                echo Build.ArtifactStagingDirectory=$(Build.ArtifactStagingDirectory)|
+                echo Build.ArtifactStagingDirectory=$(Build.ArtifactStagingDirectory)
                 echo System.DefaultWorkingDirectory=$(System.DefaultWorkingDirectory)
           - task: NuGetCommand@2
             name: 'NuGetRestore'
