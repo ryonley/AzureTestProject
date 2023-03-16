@@ -27,10 +27,10 @@ stages:
             displayName: 'NuGet tool installer'
             
           - task: CmdLine@2
-            displayName: 'List files in working directory'
+            displayName: 'build artifact staging directory output'
             inputs:
               script: |
-                dir $(Build.ArtifactStagingDirectory)
+                echo Build.ArtifactStagingDirectory=$(Build.ArtifactStagingDirectory)
           - task: NuGetCommand@2
             name: 'NuGetRestore'
             displayName: 'NuGet restore packages'
