@@ -96,7 +96,7 @@ stages:
                   displayName: 'Deploy IIS Website'
                   inputs:
                     WebSiteName: 'AzureTestProject'
-                    Package: '$(System.DefaultWorkingDirectory)/AzureTestProject-$(Build.SourceBranchName).zip'
+                    Package: '$(Build.ArtifactStagingDirectory)/AzureTestProject-$(Build.SourceBranchName).zip'
                     TakeAppOfflineFlag: true
 
                 - task: IISWebAppManagementOnMachineGroup@0
