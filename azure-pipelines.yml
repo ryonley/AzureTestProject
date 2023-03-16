@@ -71,6 +71,11 @@ stages:
         runOnce:
           deploy:
             steps:
+                - task: CmdLine@2
+                  displayName: 'List files in working directory'
+                  inputs:
+                    script: |
+                      dir $(System.DefaultWorkingDirectory)
                
                 - task: IISWebAppManagementOnMachineGroup@0
                   name: 'StopIIS'
