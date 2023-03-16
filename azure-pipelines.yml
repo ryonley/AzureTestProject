@@ -53,13 +53,13 @@ stages:
               projects: '$(project)'
               arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
               zipAfterPublish: false
+
           - task: PublishBuildArtifacts@1
-            name: 'PublishBuildArtifacts'
-            displayName: 'Publish Build Artifacts'
             inputs:
               PathtoPublish: '$(Build.ArtifactStagingDirectory)'
               ArtifactName: 'AzureTestProject'
               publishLocation: 'Container'
+              
   - stage: Dev
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
     displayName: 'Dev Deploy'
@@ -72,10 +72,12 @@ stages:
         runOnce:
           deploy:
             steps:
-                - checkout: none
-                - download: 'buildPipeline'
-                  name: 'DownloadBuildArtifacts'
-                  artifact: 'AzureTestProject'
+                - task: DownloadBuildArtifacts@1
+                  inputs:
+                    buildType: 'current'
+                    downloadType: 'single'
+                    artifactName: 'AzureTestProject'
+                    downloadPath: '$(System.ArtifactsDirectory)'
                 - task: IISWebAppManagementOnMachineGroup@0
                   name: 'StopIIS'
                   displayName: 'Stop IIS Website'
@@ -84,13 +86,11 @@ stages:
                     ActionIISWebsite: 'StopWebsite'
                     StartStopWebsiteName: 'AzureTestProject'
 
+                
                 - task: IISWebAppDeploymentOnMachineGroup@0
-                  name: 'DeployIIS'
-                  displayName: 'Deploy IIS Website'
                   inputs:
                     WebSiteName: 'AzureTestProject'
-                    Package: '$(Pipeline.Workspace)\buildPipeline\AzureTestProject\RoundTheCode.AzureTestProject'
-                    TakeAppOfflineFlag: true
+                    Package: '$(System.DefaultWorkingDirectory)\**\*.zip'
 
                 - task: IISWebAppManagementOnMachineGroup@0
                   name: 'StartIIS'
