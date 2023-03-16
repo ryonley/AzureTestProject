@@ -97,3 +97,42 @@ stages:
                     IISDeploymentType: 'IISWebsite'
                     ActionIISWebsite: 'StartWebsite'
                     StartStopWebsiteName: 'AzureTestProject'
+                    
+  - stage: Prod
+    dependsOn: Dev
+    condition: and(succeeded('Dev'), succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    displayName: 'Prod Deploy'
+    jobs:
+    - deployment: ProdDeployment
+      environment: 'Windows 11 Production.Machine3'
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+                - task: DownloadBuildArtifacts@1
+                  inputs:
+                    buildType: 'current'
+                    downloadType: 'single'
+                    artifactName: 'AzureTestProject'
+                    downloadPath: '$(System.ArtifactsDirectory)'
+                - task: IISWebAppManagementOnMachineGroup@0
+                  name: 'StopIIS'
+                  displayName: 'Stop IIS Website'
+                  inputs:
+                    IISDeploymentType: 'IISWebsite'
+                    ActionIISWebsite: 'StopWebsite'
+                    StartStopWebsiteName: 'AzureTestProjectProd'
+                
+                - task: IISWebAppDeploymentOnMachineGroup@0
+                  inputs:
+                    WebSiteName: 'AzureTestProjectProd'
+                    Package: '$(System.ArtifactsDirectory)/AzureTestProject/RoundTheCode.AzureTestProject'
+
+
+                - task: IISWebAppManagementOnMachineGroup@0
+                  name: 'StartIIS'
+                  displayName: 'Start IIS Website'
+                  inputs:
+                    IISDeploymentType: 'IISWebsite'
+                    ActionIISWebsite: 'StartWebsite'
+                    StartStopWebsiteName: 'AzureTestProjectProd'                  
