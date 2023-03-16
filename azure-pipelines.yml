@@ -26,12 +26,7 @@ stages:
             name: 'NuGetToolInstaller'
             displayName: 'NuGet tool installer'
             
-          - task: CmdLine@2
-            displayName: 'build artifact staging directory output'
-            inputs:
-              script: |
-                echo Build.ArtifactStagingDirectory=$(Build.ArtifactStagingDirectory)
-                echo System.DefaultWorkingDirectory=$(System.DefaultWorkingDirectory)
+
           - task: NuGetCommand@2
             name: 'NuGetRestore'
             displayName: 'NuGet restore packages'
@@ -63,7 +58,7 @@ stages:
             displayName: 'Publish Build Artifacts'
             inputs:
               PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-              ArtifactName: 'AzureTestProject-$(Build.SourceBranchName)'
+              ArtifactName: 'AzureTestProject'
               publishLocation: 'Container'
   - stage: Dev
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
@@ -77,11 +72,6 @@ stages:
         runOnce:
           deploy:
             steps:
-                - task: CmdLine@2
-                  displayName: 'List files in working directory'
-                  inputs:
-                    script: |
-                      dir $(System.DefaultWorkingDirectory)
                
                 - task: IISWebAppManagementOnMachineGroup@0
                   name: 'StopIIS'
@@ -96,7 +86,7 @@ stages:
                   displayName: 'Deploy IIS Website'
                   inputs:
                     WebSiteName: 'AzureTestProject'
-                    Package: '$(Build.ArtifactStagingDirectory)/AzureTestProject-$(Build.SourceBranchName).zip'
+                    Package: '$(Pipeline.Workspace)\buildPipeline\AzureTestProject\RoundTheCode.AzureTestProject'
                     TakeAppOfflineFlag: true
 
                 - task: IISWebAppManagementOnMachineGroup@0
