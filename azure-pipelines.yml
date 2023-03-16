@@ -86,7 +86,7 @@ stages:
                   displayName: 'Deploy IIS Website'
                   inputs:
                     WebSiteName: 'AzureTestProject'
-                    Package: '$(Pipeline.Workspace)\buildPipeline\AzureTestProject\RoundTheCode.AzureTestProject'
+                    Package: '$(Pipeline.Workspace)/**/*.zip'
                     TakeAppOfflineFlag: true
 
                 - task: IISWebAppManagementOnMachineGroup@0
