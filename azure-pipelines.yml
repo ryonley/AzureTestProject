@@ -60,11 +60,11 @@ stages:
               ArtifactName: 'AzureTestProject'
               publishLocation: 'Container'
 
-  - stage: Dev
+  - stage: QA
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-    displayName: 'Dev Deploy'
+    displayName: 'QA Deploy'
     jobs:
-    - deployment: DevDeployment
+    - deployment: QADeployment
       environment: 'Windows 11 server.Machine3'
       strategy:
         runOnce:
@@ -97,10 +97,22 @@ stages:
                     IISDeploymentType: 'IISWebsite'
                     ActionIISWebsite: 'StartWebsite'
                     StartStopWebsiteName: 'AzureTestProject'
+
+  - stage: QAApproval
+    dependsOn: QA
+    condition: succeeded('QA')
+    jobs:
+      - job: QAApproval
+        steps:
+        - task: ManualValidation@0
+          inputs:
+            notifyUsers: 'rodger.yonley@protonmail.com'
+            instructions: 'Please QA the release environment'
+
                     
   - stage: Prod
-    dependsOn: Dev
-    condition: and(succeeded('Dev'), succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    dependsOn: QAApproval
+    condition: and(succeeded('QAApproval'), succeeded())
     displayName: 'Prod Deploy'
     jobs:
     - deployment: ProdDeployment
