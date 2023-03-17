@@ -99,20 +99,37 @@ stages:
                     StartStopWebsiteName: 'AzureTestProject'
 
   - stage: QAApproval
+    displayName: 'QA Approval'
     dependsOn: QA
     condition: succeeded('QA')
     jobs:
       - job: QAApproval
+        displayName: 'Manual QA Approval'
         steps:
         - task: ManualValidation@0
+          displayName: 'Manual QA Approval'
           inputs:
             notifyUsers: 'rodger.yonley@protonmail.com'
             instructions: 'Please QA the release environment'
 
+  - stage: ManagerApproval
+    displayName: 'Manager Approval'
+    dependsOn: QAApproval
+    condition: succeeded('QAApproval')
+    jobs:
+      - job: ManagerApproval
+        displayName: 'Manager Approval Job'
+        steps:
+          - task: ManualValidation@0
+            displayName: 'Manual Manager Approval'
+            inputs:
+             notifyUsers: 'rodger.yonley@protonmail.com'
+             instructions: 'Please approve the release for production deployment'     
+
                     
   - stage: Prod
-    dependsOn: QAApproval
-    condition: and(succeeded('QAApproval'), succeeded())
+    dependsOn: ManagerApproval
+    condition: and(succeeded('ManagerApproval'), succeeded())
     displayName: 'Prod Deploy'
     jobs:
     - deployment: ProdDeployment
