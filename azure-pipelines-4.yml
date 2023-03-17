@@ -65,9 +65,7 @@ stages:
     displayName: 'QA Deploy'
     jobs:
     - deployment: QADeployment
-      environment:
-        name: 'QA'
-        resourceName: 'Devopstesting-qa'
+      environment: WebAppQA
       strategy:
         runOnce:
           deploy:
@@ -80,6 +78,7 @@ stages:
                   downloadPath: '$(System.ArtifactsDirectory)'
 
               - task: AzureRmWebAppDeployment@4
+                displayName: 'Deploy to Azure Web App Service'
                 inputs:
                   ConnectionType: 'AzureRM'
                   azureSubscription: 'Azure subscription 1'
