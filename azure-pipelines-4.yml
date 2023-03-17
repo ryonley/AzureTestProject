@@ -81,7 +81,7 @@ stages:
                 displayName: 'Deploy to Azure Web App Service'
                 inputs:
                   ConnectionType: 'AzureRM'
-                  azureSubscription: 'Azure subscription 1'
+                  azureSubscription: 'MyAzureSubscription'
                   appType: 'webApp'
                   WebAppName: 'Devopstesting-qa'
                   packageForLinux: '$(System.ArtifactsDirectory)/AzureTestProject/RoundTheCode.AzureTestProject'
