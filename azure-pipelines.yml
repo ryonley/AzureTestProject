@@ -103,29 +103,40 @@ stages:
     dependsOn: QA
     condition: succeeded('QA')
     jobs:
-      - job: QAApproval
+      - deployment: QAApproval
         displayName: 'Manual QA Approval'
-        steps:
-        - task: ManualValidation@0
-          displayName: 'Manual QA Approval'
-          inputs:
-            notifyUsers: 'rodger.yonley@protonmail.com'
-            instructions: 'Please QA the release environment'
+        environment: 'QAApprovalEnvironment'
+        pool:
+          vmImage: 'windows-latest'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: ManualValidation@0
+                  displayName: 'Manual QA Approval'
+                  inputs:
+                    notifyUsers: 'rodger.yonley@protonmail.com'
+                    instructions: 'Please QA the release environment'
 
   - stage: ManagerApproval
     displayName: 'Manager Approval'
     dependsOn: QAApproval
     condition: succeeded('QAApproval')
     jobs:
-      - job: ManagerApproval
+      - deployment: ManagerApproval
         displayName: 'Manager Approval Job'
-        steps:
-          - task: ManualValidation@0
-            displayName: 'Manual Manager Approval'
-            inputs:
-             notifyUsers: 'rodger.yonley@protonmail.com'
-             instructions: 'Please approve the release for production deployment'     
-
+        environment: 'ManagerApprovalEnvironment'
+        pool:
+          vmImage: 'windows-latest'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: ManualValidation@0
+                  displayName: 'Manual Manager Approval'
+                  inputs:
+                    notifyUsers: 'rodger.yonley@protonmail.com'
+                    instructions: 'Please approve the release for production deployment'
                     
   - stage: Prod
     dependsOn: ManagerApproval
