@@ -4,7 +4,9 @@
 # https://aka.ms/yaml
 
 trigger:
-  none
+  branches:
+    include:
+      - main
 
 pool:
   vmImage: 'windows-latest'
@@ -80,7 +82,7 @@ stages:
               - task: AzureRmWebAppDeployment@4
                 inputs:
                   ConnectionType: 'AzureRM'
-                  azureSubscription: '<Your-Azure-Subscription-Name>'
+                  azureSubscription: 'Azure subscription 1'
                   appType: 'webApp'
                   WebAppName: 'Devopstesting-qa'
                   packageForLinux: '$(System.ArtifactsDirectory)/AzureTestProject/RoundTheCode.AzureTestProject'
