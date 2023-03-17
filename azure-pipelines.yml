@@ -101,8 +101,8 @@ stages:
  
                     
   - stage: Prod
-    dependsOn: ManagerApproval
-    condition: and(succeeded('ManagerApproval'), succeeded())
+    dependsOn: QA
+    condition: and(succeeded('QA'), succeeded())
     displayName: 'Prod Deploy'
     jobs:
     - deployment: ProdDeployment
